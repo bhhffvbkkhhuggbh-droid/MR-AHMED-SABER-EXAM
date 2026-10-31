@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة مستر أحمد صابر - للإمتحانات الإلكترونية</title>
-    <!-- مكتبة Supabase للربط السحابي المباشر -->
+    <!-- مكتبة Supabase للربط السحابي -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: Tahoma, sans-serif; margin: 0; padding: 15px; }
@@ -92,7 +92,7 @@
         <div id="adminPanel" class="hidden">
             <h3 style="color: #10b981; margin-bottom: 15px;">لوحة تحكم المدرس السحابية 👨‍🏫</h3>
             
-            <!-- إضافة طلاب وأكواد جديدة للسيرفر مباشرة -->
+            <!-- إضافة طالب وأكواد جديدة للسيرفر مباشرة -->
             <div class="card">
                 <h4 style="color: #facc15; margin-bottom: 10px;">إضافة طالب وكود جديد:</h4>
                 <select id="newStudentGrade">
@@ -205,7 +205,6 @@
     </div>
 
     <script>
-        // إعدادات الاتصال بقاعدة بيانات Supabase الخاصة بك
         const SUPABASE_URL = 'https://pflnwocnuevhjiawrrpo.supabase.co';
         const SUPABASE_KEY = 'Sb_publishable_icKvKhBOXsWPB3jErnE3bg_d-elEruS';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -221,26 +220,21 @@
         let timerInterval;
         let currentStudent = { grade: '', name: '', code: '' };
 
-        // جلب البيانات من السيرفر فور فتح الصفحة
         async function fetchAllData() {
             try {
-                // 1. جلب الطلاب
                 let { data: sData } = await supabaseClient.from('students').select('*');
                 if (sData) studentsList = sData;
 
-                // 2. جلب الأسئلة
                 let { data: qData } = await supabaseClient.from('questions').select('*');
                 if (qData) questions = qData;
 
-                // 3. جلب الإعدادات
                 let { data: eData } = await supabaseClient.from('exam_settings').select('*');
                 if (eData && eData.length > 0) examSettings = eData[0];
 
-                // 4. جلب النتائج
                 let { data: rData } = await supabaseClient.from('exam_results').select('*');
                 if (rData) examResults = rData;
             } catch (err) {
-                console.error("خطأ في الاتصال بالسيرفر:", err);
+                console.error("خطأ في جلب البيانات:", err);
             }
         }
 
@@ -286,8 +280,8 @@
                 await fetchAllData();
                 document.getElementById('examTitleSetting').value = examSettings.title || '';
                 document.getElementById('examDurationSetting').value = examSettings.duration || 30;
-                document.getElementById('examStartSetting').value = examSettings.startTime || '';
-                document.getElementById('examEndSetting').value = examSettings.endTime || '';
+                document.getElementById('examStartSetting').value = examSettings.start_time || '';
+                document.getElementById('examEndSetting').value = examSettings.end_time || '';
                 renderStudentsList();
                 renderResultsTable();
             } else {
@@ -303,7 +297,8 @@
 
             let { error } = await supabaseClient.from('students').insert([{ grade, name, code }]);
             if (error) {
-                alert('حدث خطأ أثناء الحفظ!');
+                alert('خطأ في الحفظ: تأكد من تشغيل جدول الطلاب في قاعدة البيانات.');
+                console.error(error);
             } else {
                 alert('تم حفظ الطالب في السيرفر بنجاح!');
                 document.getElementById('newStudentName').value = '';
@@ -326,8 +321,9 @@
         }
 
         async function deleteStudent(id) {
-            if (confirm('هل أنت متأكد من حذف هذا الطالب من السيرفر؟')) {
+            if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
                 await supabaseClient.from('students').delete().eq('id', id);
+                await fetchAllData();
                 renderStudentsList();
             }
         }
@@ -362,14 +358,18 @@
             let startTime = document.getElementById('examStartSetting').value;
             let endTime = document.getElementById('examEndSetting').value;
 
-            // مسح القديم وحفظ الجديد
-            await supabaseClient.from('exam_settings').delete().neq('id', 0);
-            let { error } = await supabaseClient.from('exam_settings').insert([{ title, duration, start_time: startTime, end_time: endTime }]);
-            
-            if (error) {
-                alert('خطأ أثناء حفظ الإعدادات!');
-            } else {
-                alert('تم حفظ مواعيد وإعدادات الامتحان على السيرفر بنجاح!');
+            try {
+                await supabaseClient.from('exam_settings').delete().neq('id', 0);
+                let { error } = await supabaseClient.from('exam_settings').insert([{ title, duration, start_time: startTime, end_time: endTime }]);
+                
+                if (error) {
+                    alert('حدث خطأ أثناء حفظ الإعدادات!');
+                    console.error(error);
+                } else {
+                    alert('تم حفظ إعدادات الامتحان بنجاح!');
+                }
+            } catch(e) {
+                alert('خطأ في الاتصال بالسرفر!');
             }
         }
 
@@ -398,6 +398,7 @@
             let { error } = await supabaseClient.from('questions').insert([{ text, score, type, options, correct }]);
             if (error) {
                 alert('خطأ أثناء إضافة السؤال!');
+                console.error(error);
             } else {
                 alert('تم إضافة السؤال للسيرفر بنجاح!');
                 document.getElementById('qText').value = '';
@@ -494,14 +495,16 @@
         }
 
         function nextQuestion() {
-            if (currentQIndex < questions.length - 1) {
-                loadQuestion(currentQIndex + 1);
+            let nextIdx = currentQIndex + 1;
+            if (nextIdx < questions.length) {
+                loadQuestion(nextIdx);
             }
         }
 
         function prevQuestion() {
-            if (currentQIndex > 0) {
-                loadQuestion(currentQIndex - 1);
+            let prevIdx = currentQIndex - 1;
+            if (prevIdx >= 0) {
+                loadQuestion(prevIdx);
             }
         }
 
@@ -543,7 +546,6 @@
                 }
             });
 
-            // حفظ النتيجة في السيرفر السحابي
             await supabaseClient.from('exam_results').insert([{
                 grade: currentStudent.grade,
                 name: currentStudent.name,
