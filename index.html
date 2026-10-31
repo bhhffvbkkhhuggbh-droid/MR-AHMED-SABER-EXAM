@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة مستر أحمد صابر - للإمتحانات الإلكترونية</title>
-    <!-- مكتبة Supabase للربط السحابي -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: Tahoma, sans-serif; margin: 0; padding: 15px; }
@@ -69,7 +68,7 @@
                 </select>
 
                 <label style="font-size: 13px; color: #cbd5e1;">أدخل الكود الخاص بك:</label>
-                <input type="text" id="studentCodeInput" placeholder="أدخل الكود الذي تسلمته من مستر أحمد">
+                <input type="text" id="studentCodeInput" placeholder="أدخل الكود الخاص بك">
 
                 <button onclick="studentLogin()" style="background: #f59e0b; color: #0f172a; margin-top: 10px;">دخول الامتحان</button>
             </div>
@@ -295,7 +294,7 @@
             let code = document.getElementById('newStudentCode').value.trim();
             if (!name || !code) { alert('الرجاء إدخال اسم الطالب وكوده'); return; }
 
-            let { error } = await supabaseClient.from('students').insert([{ grade, name, code }]);
+            const { error } = await supabaseClient.from('students').insert([{ grade, name, code }]);
             if (error) {
                 alert('خطأ في الحفظ: تأكد من تشغيل جدول الطلاب في قاعدة البيانات.');
                 console.error(error);
@@ -360,7 +359,7 @@
 
             try {
                 await supabaseClient.from('exam_settings').delete().neq('id', 0);
-                let { error } = await supabaseClient.from('exam_settings').insert([{ title, duration, start_time: startTime, end_time: endTime }]);
+                const { error } = await supabaseClient.from('exam_settings').insert([{ title, duration, start_time: startTime, end_time: endTime }]);
                 
                 if (error) {
                     alert('حدث خطأ أثناء حفظ الإعدادات!');
@@ -369,7 +368,7 @@
                     alert('تم حفظ إعدادات الامتحان بنجاح!');
                 }
             } catch(e) {
-                alert('خطأ في الاتصال بالسرفر!');
+                alert('خطأ في الاتصال بالسيرفر!');
             }
         }
 
@@ -395,7 +394,7 @@
                 ].filter(Boolean);
             }
 
-            let { error } = await supabaseClient.from('questions').insert([{ text, score, type, options, correct }]);
+            const { error } = await supabaseClient.from('questions').insert([{ text, score, type, options, correct }]);
             if (error) {
                 alert('خطأ أثناء إضافة السؤال!');
                 console.error(error);
