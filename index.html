@@ -8,46 +8,116 @@
         body { background-color: #0f172a; color: #ffffff; font-family: Tahoma, sans-serif; margin: 0; padding: 20px; }
         .container { max-width: 600px; margin: 40px auto; background: #1e293b; padding: 30px; border-radius: 15px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         h1 { color: #f59e0b; font-size: 24px; text-align: center; margin-bottom: 10px; }
-        p.sub { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 30px; }
+        p.sub { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
         input { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 12px; background: #f59e0b; color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
         button:hover { background: #d97706; }
-        .admin-panel { display: none; margin-top: 20px; }
+        .hidden { display: none; }
+        .admin-badge { background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>منصة مستر أحمد صابر</h1>
-        <p class="sub">📞 01119084421 - لإدارة الامتحانات والطلاب</p>
+        <p class="sub">📞 01119084421 - نظام الامتحانات الإلكترونية</p>
 
-        <div id="loginSection">
-            <h3 style="margin-bottom: 15px;">دخول لوحة التحكم</h3>
-            <input type="password" id="passInput" placeholder="أدخل كلمة المرور (123456)">
-            <button onclick="checkLogin()">دخول</button>
+        <!-- واجهة الطالب الافتراضية -->
+        <div id="studentSection">
+            <h3 style="margin-bottom: 15px; color: #38bdf8;">تسجيل دخول الطالب للامتحان</h3>
+            <input type="text" id="studentCode" placeholder="أدخل كود الطالب الخاص بك">
+            <button onclick="startExam()">دخول الامتحان</button>
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="showAdminLogin()" style="background: transparent; color: #94a3b8; font-size: 13px; border: none; cursor: pointer;">دخول المدرس (لوحة التحكم)</button>
+            </div>
         </div>
 
-        <div id="adminSection" class="admin-panel">
-            <h3 style="color: #10b981;">أهلاً بك يا مستر أحمد!</h3>
-            <p style="color: #cbd5e1;">تم تسجيل الدخول بنجاح إلى لوحة التحكم.</p>
-            <button onclick="logout()" style="background: #ef4444; color: #fff; margin-top: 15px;">تسجيل الخروج</button>
+        <!-- شاشة تسجيل دخول المدرس السرية -->
+        <div id="adminLoginSection" class="hidden">
+            <h3 style="margin-bottom: 15px; color: #f59e0b;">تسجيل دخول المدرس</h3>
+            <input type="password" id="adminPassInput" placeholder="أدخل كلمة المرور الخاصة بك">
+            <button onclick="verifyAdminPass()">دخول لوحة التحكم</button>
+            <button onclick="backToStudent()" style="background: #475569; color: #fff; margin-top: 10px;">الرجوع لصفحة الطالب</button>
+        </div>
+
+        <!-- لوحة تحكم المدرس (الخاصة بيك وحدك وفيها إمكانية تغيير الباسورد) -->
+        <div id="adminPanel" class="hidden">
+            <h3 style="color: #10b981; margin-bottom: 10px;">أهلاً بك يا مستر أحمد! 👨‍🏫</h3>
+            <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 20px;">أنت الآن في لوحة التحكم الكاملة للمنصة.</p>
+            
+            <div class="admin-badge">
+                <label style="display: block; margin-bottom: 8px; font-size: 14px; color: #facc15;">تغيير كلمة المرور الخاصة بك:</label>
+                <input type="password" id="newPassInput" placeholder="اكتب كلمة المرور الجديدة">
+                <button onclick="saveNewPassword()" style="background: #3b82f6; color: #fff;">حفظ كلمة المرور الجديدة</button>
+            </div>
+
+            <button onclick="logoutAdmin()" style="background: #ef4444; color: #fff;">تسجيل خروج المدرس</button>
+        </div>
+
+        <!-- واجهة امتحان الطالب -->
+        <div id="examContainer" class="hidden">
+            <h3 style="color: #38bdf8;">صفحة الامتحان</h3>
+            <p id="welcomeStudentText" style="color: #cbd5e1;"></p>
+            <div style="background: #0f172a; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <p>سؤال تجريبي: ما هو نظام الامتحان الخاص بك؟</p>
+                <label><input type="radio" name="q1"> نظام MCQ</label><br>
+                <label><input type="radio" name="q1"> نظام صح وخطأ</label>
+            </div>
+            <button onclick="alert('تم تسليم الامتحان بنجاح!')" style="background: #10b981; color: #fff;">إرسال الإجابات</button>
         </div>
     </div>
 
     <script>
-        function checkLogin() {
-            var pass = document.getElementById('passInput').value;
-            if (pass === '123456') {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('adminSection').style.display = 'block';
+        // كلمة المرور الافتتاحية للمدرس (يمكنك تغييرها من داخل لوحة التحكم)
+        let currentAdminPass = localStorage.getItem('adminPass') || '123456';
+
+        function showAdminLogin() {
+            document.getElementById('studentSection').classList.add('hidden');
+            document.getElementById('adminLoginSection').classList.remove('hidden');
+        }
+
+        function backToStudent() {
+            document.getElementById('adminLoginSection').classList.add('hidden');
+            document.getElementById('studentSection').classList.remove('hidden');
+        }
+
+        function verifyAdminPass() {
+            let enteredPass = document.getElementById('adminPassInput').value;
+            if (enteredPass === currentAdminPass) {
+                document.getElementById('adminLoginSection').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
             } else {
-                alert('كلمة المرور غير صحيحة! (الافتراضية: 123456)');
+                alert('كلمة المرور غير صحيحة!');
             }
         }
-        function logout() {
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('adminSection').style.display = 'none';
-            document.getElementById('passInput').value = '';
+
+        function saveNewPassword() {
+            let newPass = document.getElementById('newPassInput').value;
+            if (newPass.length < 4) {
+                alert('يجب أن تكون كلمة المرور 4 أحرف أو أرقام على الأقل');
+                return;
+            }
+            currentAdminPass = newPass;
+            localStorage.setItem('adminPass', newPass);
+            alert('تم تغيير كلمة المرور بنجاح! احتفظ بها جيداً.');
+            document.getElementById('newPassInput').value = '';
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('studentSection').classList.remove('hidden');
+            document.getElementById('adminPassInput').value = '';
+        }
+
+        function startExam() {
+            let code = document.getElementById('studentCode').value.trim();
+            if (code === '') {
+                alert('الرجاء إدخال كود الطالب الصحيح!');
+                return;
+            }
+            document.getElementById('studentSection').classList.add('hidden');
+            document.getElementById('examContainer').classList.remove('hidden');
+            document.getElementById('welcomeStudentText').innerText = 'أهلاً بك، تم التحقق من الكود (' + code + ') بنجاح. بالتوفيق!';
         }
     </script>
 
