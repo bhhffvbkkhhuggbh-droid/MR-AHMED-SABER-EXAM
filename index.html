@@ -26,6 +26,9 @@
         .option-box.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); }
         .opt-badge { width: 30px; height: 30px; background: #334155; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-left: 12px; color: #f8fafc; }
         .option-box.selected .opt-badge { background: #3b82f6; color: #fff; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid #475569; padding: 8px; text-align: center; }
+        th { background: #0f172a; color: #f59e0b; }
     </style>
 </head>
 <body>
@@ -34,13 +37,20 @@
         <h1>منصة مستر أحمد صابر</h1>
         <p class="sub">📞 01119084421 - النظام الاحترافي المتقدم</p>
 
-        <!-- 1. واجهة دخول الطالب (الصف، الاسم، الكود) -->
+        <!-- 1. واجهة دخول الطالب (اختيار الصف، الاسم الجاهز، والكود) -->
         <div id="studentLoginSection">
             <div class="card">
                 <h3 style="color: #38bdf8; margin-bottom: 15px;">دخول الطالب للامتحان</h3>
                 
                 <label style="font-size: 13px; color: #cbd5e1;">اختر الصف الدراسي:</label>
-                <select id="studentGradeSelect">
+                <select id="studentGradeSelect" onchange="updateStudentNamesDropdown()">
+                    <option value="">-- اختر الصف --</option>
+                    <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                    <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                    <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                    <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                    <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                    <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
                     <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
                     <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
                     <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
@@ -49,11 +59,13 @@
                     <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
                 </select>
 
-                <label style="font-size: 13px; color: #cbd5e1;">اسم الطالب:</label>
-                <input type="text" id="studentNameInput" placeholder="اكتب اسمك الثلاثي">
+                <label style="font-size: 13px; color: #cbd5e1;">اختر اسمك من القائمة:</label>
+                <select id="studentNameSelect">
+                    <option value="">-- اختر صفك أولاً --</option>
+                </select>
 
-                <label style="font-size: 13px; color: #cbd5e1;">كود الطالب:</label>
-                <input type="text" id="studentCodeInput" placeholder="أدخل كود الطالب الخاص بك">
+                <label style="font-size: 13px; color: #cbd5e1;">أدخل الكود الخاص بك:</label>
+                <input type="text" id="studentCodeInput" placeholder="أدخل الكود الذي تسلمته من مستر أحمد">
 
                 <button onclick="studentLogin()" style="background: #f59e0b; color: #0f172a; margin-top: 10px;">دخول الامتحان</button>
             </div>
@@ -76,9 +88,16 @@
         <div id="adminPanel" class="hidden">
             <h3 style="color: #10b981; margin-bottom: 15px;">لوحة تحكم المدرس 👨‍🏫</h3>
             
+            <!-- إضافة طلاب وأكواد جديدة -->
             <div class="card">
-                <h4 style="color: #facc15; margin-bottom: 10px;">إدارة أكواد الطلاب المسموح لهم:</h4>
+                <h4 style="color: #facc15; margin-bottom: 10px;">إضافة طالب وكود جديد:</h4>
                 <select id="newStudentGrade">
+                    <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                    <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                    <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                    <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                    <option value="الصف الخامس الابتدائي">الصف الخامس الابتدائي</option>
+                    <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
                     <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
                     <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
                     <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
@@ -86,10 +105,17 @@
                     <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
                     <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
                 </select>
-                <input type="text" id="newStudentName" placeholder="اسم الطالب">
-                <input type="text" id="newStudentCode" placeholder="كود الطالب">
-                <button onclick="addStudentCode()" style="background: #10b981; color: #fff;">إضافة الطالب للقائمة</button>
+                <input type="text" id="newStudentName" placeholder="اسم الطالب الثلاثي">
+                <input type="text" id="newStudentCode" placeholder="الكود السري للطالب (الذي ألفته له)">
+                <button onclick="addStudentCode()" style="background: #10b981; color: #fff;">حفظ الطالب في القائمة</button>
                 <div id="studentsListDisplay" style="margin-top: 10px; font-size: 13px; color: #cbd5e1;"></div>
+            </div>
+
+            <!-- سجل نتائج الطلاب -->
+            <div class="card">
+                <h4 style="color: #facc15; margin-bottom: 10px;">📊 سجل درجات ونقاط الطلاب:</h4>
+                <div id="resultsTableContainer">لا توجد نتائج مسجلة حتى الآن.</div>
+                <button onclick="clearResults()" style="background: #dc2626; color: #fff; margin-top: 10px; font-size: 13px; padding: 8px;">حذف سجل النتائج</button>
             </div>
 
             <div class="card">
@@ -131,7 +157,7 @@
             <button onclick="logoutAdmin()" style="background: #ef4444; color: #fff;">تسجيل خروج</button>
         </div>
 
-        <!-- 4. واجهة الامتحان الاحترافية (سؤال بسؤال) -->
+        <!-- 4. واجهة الامتحان الاحترافية -->
         <div id="examContainer" class="hidden">
             <div id="timerDisplay" class="timer-box">الوقت المتبقي: 30:00</div>
             <h3 id="studentExamTitle" style="color: #38bdf8; margin-bottom: 5px;"></h3>
@@ -167,10 +193,30 @@
         let examSettings = JSON.parse(localStorage.getItem('examSettings')) || { title: 'امتحان تجريبي', duration: 30, showResult: 'yes' };
         let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
         let studentsList = JSON.parse(localStorage.getItem('studentsList')) || [];
+        let examResults = JSON.parse(localStorage.getItem('examResults')) || [];
         let studentAnswers = {};
         let currentQIndex = 0;
         let timerInterval;
         let currentStudent = { grade: '', name: '', code: '' };
+
+        function updateStudentNamesDropdown() {
+            let selectedGrade = document.getElementById('studentGradeSelect').value;
+            let nameSelect = document.getElementById('studentNameSelect');
+            nameSelect.innerHTML = '<option value="">-- اختر اسمك --</option>';
+
+            let filteredStudents = studentsList.filter(s => s.grade === selectedGrade);
+            if (filteredStudents.length === 0) {
+                nameSelect.innerHTML = '<option value="">لا توجد أسماء مسجلة لهذا الصف حتى الآن</option>';
+                return;
+            }
+
+            filteredStudents.forEach(s => {
+                let opt = document.createElement('option');
+                opt.value = s.name;
+                opt.innerText = s.name;
+                nameSelect.appendChild(opt);
+            });
+        }
 
         function showAdminLogin() {
             document.getElementById('studentLoginSection').classList.add('hidden');
@@ -191,6 +237,7 @@
                 document.getElementById('examDurationSetting').value = examSettings.duration;
                 document.getElementById('showResultSetting').value = examSettings.showResult;
                 renderStudentsList();
+                renderResultsTable();
             } else {
                 alert('كلمة المرور غير صحيحة!');
             }
@@ -211,11 +258,33 @@
 
         function renderStudentsList() {
             let disp = document.getElementById('studentsListDisplay');
-            if (studentsList.length === 0) { disp.innerHTML = 'لا توجد أكواد مضافة بعد (مفتوح لأي كود حالياً لو القائمة فارغة)'; return; }
-            let html = '<b>الطلاب المضافون:</b><ul style="margin:5px 0; padding-right:15px;">';
+            if (studentsList.length === 0) { disp.innerHTML = 'لا توجد أكواد مضافة بعد.'; return; }
+            let html = '<b>الطلاب المضافون:</b><ul style="margin:5px 0; padding-right:15px; max-height:120px; overflow-y:auto;">';
             studentsList.forEach(s => { html += `<li>[${s.grade}] ${s.name} - الكود: <b>${s.code}</b></li>`; });
             html += '</ul>';
             disp.innerHTML = html;
+        }
+
+        function renderResultsTable() {
+            let container = document.getElementById('resultsTableContainer');
+            if (examResults.length === 0) {
+                container.innerHTML = 'لا توجد نتائج مسجلة حتى الآن.';
+                return;
+            }
+            let html = `<table><tr><th>الصف</th><th>اسم الطالب</th><th>الدرجة</th></tr>`;
+            examResults.forEach(r => {
+                html += `<tr><td>${r.grade}</td><td>${r.name}</td><td><b>${r.score} / ${r.total}</b></td></tr>`;
+            });
+            html += `</table>`;
+            container.innerHTML = html;
+        }
+
+        function clearResults() {
+            if (confirm('هل أنت متأكد من مسح جميع سجلات النتائج؟')) {
+                examResults = [];
+                localStorage.removeItem('examResults');
+                renderResultsTable();
+            }
         }
 
         function changeAdminPassword() {
@@ -274,14 +343,15 @@
 
         function studentLogin() {
             let grade = document.getElementById('studentGradeSelect').value;
-            let name = document.getElementById('studentNameInput').value.trim();
+            let name = document.getElementById('studentNameSelect').value;
             let code = document.getElementById('studentCodeInput').value.trim();
             
-            if (!name || !code) { alert('الرجاء إدخال الاسم الكود بشكل صحيح'); return; }
+            if (!grade || !name || !code) { alert('الرجاء اختيار الصف، الاسم، وإدخال الكود الخاص بك'); return; }
             
-            if (studentsList.length > 0) {
-                let valid = studentsList.some(s => s.code === code && s.grade === grade);
-                if (!valid) { alert('عذراً، هذا الكود أو الصف غير مسجل في قائمة الطلاب المعتمدة!'); return; }
+            let foundStudent = studentsList.find(s => s.grade === grade && s.name === name && s.code === code);
+            if (!foundStudent) {
+                alert('عذراً، الكود غير صحيح لهذا الطالب!');
+                return;
             }
 
             if (questions.length === 0) { alert('عذراً، لم يقم المدرس بإضافة أسئلة بعد.'); return; }
@@ -291,7 +361,7 @@
             document.getElementById('studentLoginSection').classList.add('hidden');
             document.getElementById('examContainer').classList.remove('hidden');
             document.getElementById('studentExamTitle').innerText = examSettings.title;
-            document.getElementById('studentInfoDisplay').innerText = `الطالب: ${name} | الصف: ${grade} | الكود: ${code}`;
+            document.getElementById('studentInfoDisplay').innerText = `الطالب: ${name} | الصف: ${grade}`;
             
             currentQIndex = 0;
             studentAnswers = {};
@@ -382,6 +452,10 @@
                     score++;
                 }
             });
+
+            // حفظ النتيجة في سجل المدرس
+            examResults.push({ grade: currentStudent.grade, name: currentStudent.name, score: score, total: questions.length });
+            localStorage.setItem('examResults', JSON.stringify(examResults));
 
             document.getElementById('examContainer').classList.add('hidden');
             document.getElementById('resultContainer').classList.remove('hidden');
