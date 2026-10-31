@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة مستر أحمد صابر - للإمتحانات الإلكترونية</title>
+    <!-- مكتبة Supabase للربط السحابي المباشر -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; font-family: Tahoma, sans-serif; margin: 0; padding: 15px; }
         .container { max-width: 650px; margin: 20px auto; background: #1e293b; padding: 25px; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
@@ -37,7 +39,7 @@
 
     <div class="container">
         <h1>منصة مستر أحمد صابر</h1>
-        <p class="sub">📞 01119084421 - النظام الاحترافي المتقدم</p>
+        <p class="sub">📞 01119084421 - النظام السحابي المتكامل</p>
 
         <!-- 1. واجهة دخول الطالب -->
         <div id="studentLoginSection">
@@ -88,11 +90,11 @@
 
         <!-- 3. لوحة تحكم المدرس الشاملة -->
         <div id="adminPanel" class="hidden">
-            <h3 style="color: #10b981; margin-bottom: 15px;">لوحة تحكم المدرس 👨‍🏫</h3>
+            <h3 style="color: #10b981; margin-bottom: 15px;">لوحة تحكم المدرس السحابية 👨‍🏫</h3>
             
-            <!-- إضافة طلاب وأكواد جديدة من المنصة مباشرة -->
+            <!-- إضافة طلاب وأكواد جديدة للسيرفر مباشرة -->
             <div class="card">
-                <h4 style="color: #facc15; margin-bottom: 10px;">إضافة طالب وكود جديد مباشرة:</h4>
+                <h4 style="color: #facc15; margin-bottom: 10px;">إضافة طالب وكود جديد:</h4>
                 <select id="newStudentGrade">
                     <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
                     <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
@@ -109,8 +111,8 @@
                 </select>
                 <input type="text" id="newStudentName" placeholder="اسم الطالب الثلاثي">
                 <input type="text" id="newStudentCode" placeholder="الكود السري للطالب">
-                <button onclick="addStudentCode()" style="background: #10b981; color: #fff;">حفظ الطالب وتحديث المنصة</button>
-                <div id="studentsListDisplay" style="margin-top: 10px; font-size: 13px; color: #cbd5e1;"></div>
+                <button onclick="addStudentToCloud()" style="background: #10b981; color: #fff;">حفظ الطالب في السيرفر</button>
+                <div id="studentsListDisplay" style="margin-top: 10px; font-size: 13px; color: #cbd5e1;">جاري تحميل الطلاب...</div>
             </div>
 
             <!-- إعدادات الامتحان والمواعيد -->
@@ -128,7 +130,7 @@
                 <label style="font-size: 13px; color: #cbd5e1;">مدة الامتحان (بالدقائق داخل صفحة الحل):</label>
                 <input type="number" id="examDurationSetting" placeholder="مثال: 30" value="30">
 
-                <button onclick="saveExamSettings()" style="background: #10b981; color: #fff;">حفظ مواعيد وإعدادات الامتحان</button>
+                <button onclick="saveExamSettingsToCloud()" style="background: #10b981; color: #fff;">حفظ مواعيد وإعدادات الامتحان</button>
             </div>
 
             <!-- إضافة سؤال مع تحديد الدرجة -->
@@ -152,14 +154,13 @@
                 </div>
 
                 <input type="text" id="qCorrect" placeholder="الإجابة الصحيحة تماماً">
-                <button onclick="addQuestion()" style="background: #3b82f6; color: #fff;">إضافة السؤال</button>
+                <button onclick="addQuestionToCloud()" style="background: #3b82f6; color: #fff;">إضافة السؤال للسيرفر</button>
             </div>
 
             <!-- سجل نتائج الطلاب -->
             <div class="card">
                 <h4 style="color: #facc15; margin-bottom: 10px;">📊 سجل درجات الطلاب:</h4>
-                <div id="resultsTableContainer">لا توجد نتائج مسجلة حتى الآن.</div>
-                <button onclick="clearResults()" style="background: #dc2626; color: #fff; margin-top: 10px; font-size: 13px; padding: 8px;">حذف سجل النتائج</button>
+                <div id="resultsTableContainer">جاري تحميل النتائج...</div>
             </div>
 
             <div class="card">
@@ -204,36 +205,51 @@
     </div>
 
     <script>
-        let adminPass = localStorage.getItem('adminPass') || '123456';
-        let examSettings = JSON.parse(localStorage.getItem('examSettings')) || { 
-            title: 'امتحان تجريبي', 
-            duration: 30, 
-            startTime: '', 
-            endTime: '' 
-        };
-        let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
-        
-        // ** نظام تخزين ذكي ومضمون للطلاب يدمج الكود الافتراضي والتحديثات المباشرة **
-        let defaultStudents = [
-            { grade: 'الصف الأول الابتدائي', name: 'أحمد محمد صابر', code: '111' },
-            { grade: 'الصف الأول الإعدادي', name: 'محمود إبراهيم', code: '222' },
-            { grade: 'الصف الأول الثانوي', name: 'يوسف أحمد', code: '333' }
-        ];
-        
-        // جلب الطلاب المسجلين أو دمجهم مع الافتراضي لضمان ظهورهم دائماً
-        let storedStudents = JSON.parse(localStorage.getItem('studentsList'));
-        let studentsList = (storedStudents && storedStudents.length > 0) ? storedStudents : defaultStudents;
-        // حفظ القائمة لضمان التوافق
-        localStorage.setItem('studentsList', JSON.stringify(studentsList));
+        // إعدادات الاتصال بقاعدة بيانات Supabase الخاصة بك
+        const SUPABASE_URL = 'https://pflnwocnuevhjiawrrpo.supabase.co';
+        const SUPABASE_KEY = 'Sb_publishable_icKvKhBOXsWPB3jErnE3bg_d-elEruS';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let examResults = JSON.parse(localStorage.getItem('examResults')) || [];
-        let completedStudents = JSON.parse(localStorage.getItem('completedStudents')) || [];
+        let adminPass = localStorage.getItem('adminPass') || '123456';
+        let studentsList = [];
+        let questions = [];
+        let examSettings = { title: 'امتحان تجريبي', duration: 30, startTime: '', endTime: '' };
+        let examResults = [];
+        
         let studentAnswers = {};
         let currentQIndex = 0;
         let timerInterval;
         let currentStudent = { grade: '', name: '', code: '' };
 
-        function updateStudentNamesDropdown() {
+        // جلب البيانات من السيرفر فور فتح الصفحة
+        async function fetchAllData() {
+            try {
+                // 1. جلب الطلاب
+                let { data: sData } = await supabaseClient.from('students').select('*');
+                if (sData) studentsList = sData;
+
+                // 2. جلب الأسئلة
+                let { data: qData } = await supabaseClient.from('questions').select('*');
+                if (qData) questions = qData;
+
+                // 3. جلب الإعدادات
+                let { data: eData } = await supabaseClient.from('exam_settings').select('*');
+                if (eData && eData.length > 0) examSettings = eData[0];
+
+                // 4. جلب النتائج
+                let { data: rData } = await supabaseClient.from('exam_results').select('*');
+                if (rData) examResults = rData;
+            } catch (err) {
+                console.error("خطأ في الاتصال بالسيرفر:", err);
+            }
+        }
+
+        window.onload = async function() {
+            await fetchAllData();
+        };
+
+        async function updateStudentNamesDropdown() {
+            await fetchAllData();
             let selectedGrade = document.getElementById('studentGradeSelect').value;
             let nameSelect = document.getElementById('studentNameSelect');
             nameSelect.innerHTML = '<option value="">-- اختر اسمك --</option>';
@@ -262,13 +278,14 @@
             document.getElementById('studentLoginSection').classList.remove('hidden');
         }
 
-        function verifyAdminPass() {
+        async function verifyAdminPass() {
             let pass = document.getElementById('adminPassInput').value;
             if (pass === adminPass) {
                 document.getElementById('adminLoginSection').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
-                document.getElementById('examTitleSetting').value = examSettings.title;
-                document.getElementById('examDurationSetting').value = examSettings.duration;
+                await fetchAllData();
+                document.getElementById('examTitleSetting').value = examSettings.title || '';
+                document.getElementById('examDurationSetting').value = examSettings.duration || 30;
                 document.getElementById('examStartSetting').value = examSettings.startTime || '';
                 document.getElementById('examEndSetting').value = examSettings.endTime || '';
                 renderStudentsList();
@@ -278,41 +295,45 @@
             }
         }
 
-        function addStudentCode() {
+        async function addStudentToCloud() {
             let grade = document.getElementById('newStudentGrade').value;
             let name = document.getElementById('newStudentName').value.trim();
             let code = document.getElementById('newStudentCode').value.trim();
             if (!name || !code) { alert('الرجاء إدخال اسم الطالب وكوده'); return; }
-            
-            studentsList.push({ grade, name, code });
-            localStorage.setItem('studentsList', JSON.stringify(studentsList));
-            
-            alert('تم إضافة الطالب بنجاح وحفظه في المنصة!');
-            document.getElementById('newStudentName').value = '';
-            document.getElementById('newStudentCode').value = '';
-            renderStudentsList();
+
+            let { error } = await supabaseClient.from('students').insert([{ grade, name, code }]);
+            if (error) {
+                alert('حدث خطأ أثناء الحفظ!');
+            } else {
+                alert('تم حفظ الطالب في السيرفر بنجاح!');
+                document.getElementById('newStudentName').value = '';
+                document.getElementById('newStudentCode').value = '';
+                await fetchAllData();
+                renderStudentsList();
+            }
         }
 
-        function renderStudentsList() {
+        async function renderStudentsList() {
+            await fetchAllData();
             let disp = document.getElementById('studentsListDisplay');
             if (studentsList.length === 0) { disp.innerHTML = 'لا توجد أكواد مضافة بعد.'; return; }
-            let html = '<b>الطلاب المسجلون حالياً:</b><ul style="margin:5px 0; padding-right:15px; max-height:120px; overflow-y:auto;">';
-            studentsList.forEach((s, index) => { 
-                html += `<li>[${s.grade}] ${s.name} - الكود: <b>${s.code}</b> <button onclick="deleteStudent(${index})" style="background:#ef4444; border:none; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; margin-right:5px;">حذف</button></li>`; 
+            let html = '<b>الطلاب المسجلون على السيرفر:</b><ul style="margin:5px 0; padding-right:15px; max-height:120px; overflow-y:auto;">';
+            studentsList.forEach(s => { 
+                html += `<li>[${s.grade}] ${s.name} - الكود: <b>${s.code}</b> <button onclick="deleteStudent(${s.id})" style="background:#ef4444; border:none; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; margin-right:5px;">حذف</button></li>`; 
             });
             html += '</ul>';
             disp.innerHTML = html;
         }
 
-        function deleteStudent(index) {
-            if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
-                studentsList.splice(index, 1);
-                localStorage.setItem('studentsList', JSON.stringify(studentsList));
+        async function deleteStudent(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الطالب من السيرفر؟')) {
+                await supabaseClient.from('students').delete().eq('id', id);
                 renderStudentsList();
             }
         }
 
-        function renderResultsTable() {
+        async function renderResultsTable() {
+            await fetchAllData();
             let container = document.getElementById('resultsTableContainer');
             if (examResults.length === 0) {
                 container.innerHTML = 'لا توجد نتائج مسجلة حتى الآن.';
@@ -320,21 +341,10 @@
             }
             let html = `<table><tr><th>الصف</th><th>اسم الطالب</th><th>الدرجة</th></tr>`;
             examResults.forEach(r => {
-                html += `<tr><td>${r.grade}</td><td>${r.name}</td><td><b>${r.score} / ${r.maxScore}</b></td></tr>`;
+                html += `<tr><td>${r.grade}</td><td>${r.name}</td><td><b>${r.score} / ${r.max_score}</b></td></tr>`;
             });
             html += `</table>`;
             container.innerHTML = html;
-        }
-
-        function clearResults() {
-            if (confirm('هل أنت متأكد من مسح جميع سجلات النتائج ومنح الطلاب فرصة جديدة؟')) {
-                examResults = [];
-                completedStudents = [];
-                localStorage.removeItem('examResults');
-                localStorage.removeItem('completedStudents');
-                renderResultsTable();
-                alert('تم مسح النتائج بنجاح.');
-            }
         }
 
         function changeAdminPassword() {
@@ -346,13 +356,21 @@
             document.getElementById('newAdminPass').value = '';
         }
 
-        function saveExamSettings() {
-            examSettings.title = document.getElementById('examTitleSetting').value;
-            examSettings.duration = parseInt(document.getElementById('examDurationSetting').value) || 30;
-            examSettings.startTime = document.getElementById('examStartSetting').value;
-            examSettings.endTime = document.getElementById('examEndSetting').value;
-            localStorage.setItem('examSettings', JSON.stringify(examSettings));
-            alert('تم حفظ مواعيد وإعدادات الامتحان بنجاح!');
+        async function saveExamSettingsToCloud() {
+            let title = document.getElementById('examTitleSetting').value;
+            let duration = parseInt(document.getElementById('examDurationSetting').value) || 30;
+            let startTime = document.getElementById('examStartSetting').value;
+            let endTime = document.getElementById('examEndSetting').value;
+
+            // مسح القديم وحفظ الجديد
+            await supabaseClient.from('exam_settings').delete().neq('id', 0);
+            let { error } = await supabaseClient.from('exam_settings').insert([{ title, duration, start_time: startTime, end_time: endTime }]);
+            
+            if (error) {
+                alert('خطأ أثناء حفظ الإعدادات!');
+            } else {
+                alert('تم حفظ مواعيد وإعدادات الامتحان على السيرفر بنجاح!');
+            }
         }
 
         function toggleOptions() {
@@ -360,31 +378,35 @@
             document.getElementById('mcqOptionsDiv').style.display = (type === 'mcq') ? 'block' : 'none';
         }
 
-        function addQuestion() {
+        async function addQuestionToCloud() {
             let text = document.getElementById('qText').value.trim();
             let score = parseFloat(document.getElementById('qScore').value) || 1;
             let type = document.getElementById('qType').value;
             let correct = document.getElementById('qCorrect').value.trim();
             if (!text || !correct) { alert('الرجاء كتابة السؤال والإجابة الصحيحة'); return; }
             
-            let qData = { text, score, type, correct };
+            let options = [];
             if (type === 'mcq') {
-                qData.options = [
+                options = [
                     document.getElementById('opt1').value.trim(),
                     document.getElementById('opt2').value.trim(),
                     document.getElementById('opt3').value.trim(),
                     document.getElementById('opt4').value.trim()
                 ].filter(Boolean);
             }
-            questions.push(qData);
-            localStorage.setItem('examQuestions', JSON.stringify(questions));
-            alert('تم إضافة السؤال بنجاح!');
-            document.getElementById('qText').value = '';
-            document.getElementById('qCorrect').value = '';
-            document.getElementById('opt1').value = '';
-            document.getElementById('opt2').value = '';
-            document.getElementById('opt3').value = '';
-            document.getElementById('opt4').value = '';
+
+            let { error } = await supabaseClient.from('questions').insert([{ text, score, type, options, correct }]);
+            if (error) {
+                alert('خطأ أثناء إضافة السؤال!');
+            } else {
+                alert('تم إضافة السؤال للسيرفر بنجاح!');
+                document.getElementById('qText').value = '';
+                document.getElementById('qCorrect').value = '';
+                document.getElementById('opt1').value = '';
+                document.getElementById('opt2').value = '';
+                document.getElementById('opt3').value = '';
+                document.getElementById('opt4').value = '';
+            }
         }
 
         function logoutAdmin() {
@@ -393,7 +415,8 @@
             document.getElementById('adminPassInput').value = '';
         }
 
-        function studentLogin() {
+        async function studentLogin() {
+            await fetchAllData();
             let grade = document.getElementById('studentGradeSelect').value;
             let name = document.getElementById('studentNameSelect').value;
             let code = document.getElementById('studentCodeInput').value.trim();
@@ -401,18 +424,12 @@
             if (!grade || !name || !code) { alert('الرجاء اختيار الصف، الاسم، وإدخال الكود الخاص بك'); return; }
             
             let now = new Date();
-            if (examSettings.startTime && new Date(examSettings.startTime) > now) {
-                alert('عذراً، لم يبدأ الامتحان بعد. موعد البداية: ' + new Date(examSettings.startTime).toLocaleString('ar-EG'));
+            if (examSettings.start_time && new Date(examSettings.start_time) > now) {
+                alert('عذراً، لم يبدأ الامتحان بعد. موعد البداية: ' + new Date(examSettings.start_time).toLocaleString('ar-EG'));
                 return;
             }
-            if (examSettings.endTime && new Date(examSettings.endTime) < now) {
+            if (examSettings.end_time && new Date(examSettings.end_time) < now) {
                 alert('عذراً، لقد انتهى موعد هذا الامتحان!');
-                return;
-            }
-
-            let studentKey = grade + "_" + name + "_" + code;
-            if (completedStudents.includes(studentKey)) {
-                alert('عذراً يا ' + name + '، لقد قمت بأداء هذا الامتحان من قبل ولا يمكنك الدخول مرة أخرى!');
                 return;
             }
 
@@ -424,18 +441,18 @@
 
             if (questions.length === 0) { alert('عذراً، لم يقم المدرس بإضافة أسئلة بعد.'); return; }
 
-            currentStudent = { grade, name, code, key: studentKey };
+            currentStudent = { grade, name, code };
 
             document.getElementById('studentLoginSection').classList.add('hidden');
             document.getElementById('examContainer').classList.remove('hidden');
-            document.getElementById('studentExamTitle').innerText = examSettings.title;
+            document.getElementById('studentExamTitle').innerText = examSettings.title || 'امتحان المنصة';
             document.getElementById('studentInfoDisplay').innerText = `الطالب: ${name} | الصف: ${grade}`;
             
             currentQIndex = 0;
             studentAnswers = {};
             renderQuestionNav();
             loadQuestion(0);
-            startTimer(examSettings.duration * 60);
+            startTimer((examSettings.duration || 30) * 60);
         }
 
         function renderQuestionNav() {
@@ -512,7 +529,7 @@
             }
         }
 
-        function submitExam() {
+        async function submitExam() {
             clearInterval(timerInterval);
             let earnedScore = 0;
             let maxScore = 0;
@@ -526,11 +543,13 @@
                 }
             });
 
-            completedStudents.push(currentStudent.key);
-            localStorage.setItem('completedStudents', JSON.stringify(completedStudents));
-
-            examResults.push({ grade: currentStudent.grade, name: currentStudent.name, score: earnedScore, maxScore: maxScore });
-            localStorage.setItem('examResults', JSON.stringify(examResults));
+            // حفظ النتيجة في السيرفر السحابي
+            await supabaseClient.from('exam_results').insert([{
+                grade: currentStudent.grade,
+                name: currentStudent.name,
+                score: earnedScore,
+                max_score: maxScore
+            }]);
 
             document.getElementById('examContainer').classList.add('hidden');
             document.getElementById('resultContainer').classList.remove('hidden');
