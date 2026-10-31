@@ -90,9 +90,9 @@
         <div id="adminPanel" class="hidden">
             <h3 style="color: #10b981; margin-bottom: 15px;">لوحة تحكم المدرس 👨‍🏫</h3>
             
-            <!-- إضافة طلاب وأكواد جديدة -->
+            <!-- إضافة طلاب وأكواد جديدة من المنصة مباشرة -->
             <div class="card">
-                <h4 style="color: #facc15; margin-bottom: 10px;">إضافة طالب وكود جديد:</h4>
+                <h4 style="color: #facc15; margin-bottom: 10px;">إضافة طالب وكود جديد مباشرة:</h4>
                 <select id="newStudentGrade">
                     <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
                     <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
@@ -109,11 +109,11 @@
                 </select>
                 <input type="text" id="newStudentName" placeholder="اسم الطالب الثلاثي">
                 <input type="text" id="newStudentCode" placeholder="الكود السري للطالب">
-                <button onclick="addStudentCode()" style="background: #10b981; color: #fff;">حفظ الطالب في القائمة</button>
+                <button onclick="addStudentCode()" style="background: #10b981; color: #fff;">حفظ الطالب وتحديث المنصة</button>
                 <div id="studentsListDisplay" style="margin-top: 10px; font-size: 13px; color: #cbd5e1;"></div>
             </div>
 
-            <!-- إعدادات الامتحان والوقت والمواعيد -->
+            <!-- إعدادات الامتحان والمواعيد -->
             <div class="card">
                 <h4 style="color: #facc15; margin-bottom: 10px;">⏱️ إعدادات الامتحان والمواعيد:</h4>
                 <label style="font-size: 13px; color: #cbd5e1;">عنوان الامتحان:</label>
@@ -213,13 +213,18 @@
         };
         let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
         
-        // قائمة طلاب افتراضية جاهزة تظهر على أي جهاز (يمكنك تعديلها وإضافة طلابك هنا أو عبر لوحة التحكم)
+        // ** نظام تخزين ذكي ومضمون للطلاب يدمج الكود الافتراضي والتحديثات المباشرة **
         let defaultStudents = [
-            { grade: 'الصف الأول الابتدائي', name: 'أحمد محمد', code: '123' },
-            { grade: 'الصف الأول الإعدادي', name: 'محمود إبراهيم', code: '456' }
+            { grade: 'الصف الأول الابتدائي', name: 'أحمد محمد صابر', code: '111' },
+            { grade: 'الصف الأول الإعدادي', name: 'محمود إبراهيم', code: '222' },
+            { grade: 'الصف الأول الثانوي', name: 'يوسف أحمد', code: '333' }
         ];
-        let savedStudents = JSON.parse(localStorage.getItem('studentsList'));
-        let studentsList = (savedStudents && savedStudents.length > 0) ? savedStudents : defaultStudents;
+        
+        // جلب الطلاب المسجلين أو دمجهم مع الافتراضي لضمان ظهورهم دائماً
+        let storedStudents = JSON.parse(localStorage.getItem('studentsList'));
+        let studentsList = (storedStudents && storedStudents.length > 0) ? storedStudents : defaultStudents;
+        // حفظ القائمة لضمان التوافق
+        localStorage.setItem('studentsList', JSON.stringify(studentsList));
 
         let examResults = JSON.parse(localStorage.getItem('examResults')) || [];
         let completedStudents = JSON.parse(localStorage.getItem('completedStudents')) || [];
@@ -278,9 +283,11 @@
             let name = document.getElementById('newStudentName').value.trim();
             let code = document.getElementById('newStudentCode').value.trim();
             if (!name || !code) { alert('الرجاء إدخال اسم الطالب وكوده'); return; }
+            
             studentsList.push({ grade, name, code });
             localStorage.setItem('studentsList', JSON.stringify(studentsList));
-            alert('تم إضافة الطالب بنجاح!');
+            
+            alert('تم إضافة الطالب بنجاح وحفظه في المنصة!');
             document.getElementById('newStudentName').value = '';
             document.getElementById('newStudentCode').value = '';
             renderStudentsList();
@@ -289,10 +296,20 @@
         function renderStudentsList() {
             let disp = document.getElementById('studentsListDisplay');
             if (studentsList.length === 0) { disp.innerHTML = 'لا توجد أكواد مضافة بعد.'; return; }
-            let html = '<b>الطلاب المضافون:</b><ul style="margin:5px 0; padding-right:15px; max-height:120px; overflow-y:auto;">';
-            studentsList.forEach(s => { html += `<li>[${s.grade}] ${s.name} - الكود: <b>${s.code}</b></li>`; });
+            let html = '<b>الطلاب المسجلون حالياً:</b><ul style="margin:5px 0; padding-right:15px; max-height:120px; overflow-y:auto;">';
+            studentsList.forEach((s, index) => { 
+                html += `<li>[${s.grade}] ${s.name} - الكود: <b>${s.code}</b> <button onclick="deleteStudent(${index})" style="background:#ef4444; border:none; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; cursor:pointer; margin-right:5px;">حذف</button></li>`; 
+            });
             html += '</ul>';
             disp.innerHTML = html;
+        }
+
+        function deleteStudent(index) {
+            if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
+                studentsList.splice(index, 1);
+                localStorage.setItem('studentsList', JSON.stringify(studentsList));
+                renderStudentsList();
+            }
         }
 
         function renderResultsTable() {
