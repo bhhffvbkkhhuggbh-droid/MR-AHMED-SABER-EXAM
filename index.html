@@ -212,9 +212,17 @@
             endTime: '' 
         };
         let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
-        let studentsList = JSON.parse(localStorage.getItem('studentsList')) || [];
+        
+        // قائمة طلاب افتراضية جاهزة تظهر على أي جهاز (يمكنك تعديلها وإضافة طلابك هنا أو عبر لوحة التحكم)
+        let defaultStudents = [
+            { grade: 'الصف الأول الابتدائي', name: 'أحمد محمد', code: '123' },
+            { grade: 'الصف الأول الإعدادي', name: 'محمود إبراهيم', code: '456' }
+        ];
+        let savedStudents = JSON.parse(localStorage.getItem('studentsList'));
+        let studentsList = (savedStudents && savedStudents.length > 0) ? savedStudents : defaultStudents;
+
         let examResults = JSON.parse(localStorage.getItem('examResults')) || [];
-        let completedStudents = JSON.parse(localStorage.getItem('completedStudents')) || []; // لحفظ من امتحن مسبقاً
+        let completedStudents = JSON.parse(localStorage.getItem('completedStudents')) || [];
         let studentAnswers = {};
         let currentQIndex = 0;
         let timerInterval;
@@ -375,7 +383,6 @@
             
             if (!grade || !name || !code) { alert('الرجاء اختيار الصف، الاسم، وإدخال الكود الخاص بك'); return; }
             
-            // التحقق من مواعيد الامتحان المحددة
             let now = new Date();
             if (examSettings.startTime && new Date(examSettings.startTime) > now) {
                 alert('عذراً، لم يبدأ الامتحان بعد. موعد البداية: ' + new Date(examSettings.startTime).toLocaleString('ar-EG'));
@@ -386,7 +393,6 @@
                 return;
             }
 
-            // التحقق من أن الطالب لم يقم بأداء الامتحان من قبل
             let studentKey = grade + "_" + name + "_" + code;
             if (completedStudents.includes(studentKey)) {
                 alert('عذراً يا ' + name + '، لقد قمت بأداء هذا الامتحان من قبل ولا يمكنك الدخول مرة أخرى!');
@@ -503,11 +509,9 @@
                 }
             });
 
-            // تسجيل أن الطالب أدى الامتحان لكي لا يدخل مجدداً
             completedStudents.push(currentStudent.key);
             localStorage.setItem('completedStudents', JSON.stringify(completedStudents));
 
-            // حفظ النتيجة في سجل المدرس
             examResults.push({ grade: currentStudent.grade, name: currentStudent.name, score: earnedScore, maxScore: maxScore });
             localStorage.setItem('examResults', JSON.stringify(examResults));
 
@@ -516,7 +520,6 @@
             
             document.getElementById('resultText').innerHTML = `أهلاً بك يا <b>${currentStudent.name}</b><br>لقد حصلت على مجموع <b>${earnedScore}</b> من <b>${maxScore}</b>`;
 
-            // عرض مراجعة الإجابات وصواب/خطأ للطالب
             let reviewArea = document.getElementById('examReviewArea');
             reviewArea.innerHTML = '<h4 style="color: #facc15; margin-bottom: 10px;">📋 مراجعة إجاباتك:</h4>';
             
