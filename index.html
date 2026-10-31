@@ -3,32 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة مستر أحمد صابر - لإدارة الامتحانات</title>
+    <title>منصة مستر أحمد صابر - للإمتحانات الإلكترونية</title>
     <style>
-        body { background-color: #0f172a; color: #ffffff; font-family: Tahoma, sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 700px; margin: 30px auto; background: #1e293b; padding: 30px; border-radius: 15px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-        h1 { color: #f59e0b; font-size: 24px; text-align: center; margin-bottom: 5px; }
-        p.sub { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 25px; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 15px; }
-        button { width: 100%; padding: 12px; background: #f59e0b; color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #d97706; }
+        body { background-color: #0f172a; color: #f8fafc; font-family: Tahoma, sans-serif; margin: 0; padding: 15px; }
+        .container { max-width: 650px; margin: 20px auto; background: #1e293b; padding: 25px; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h1 { color: #f59e0b; font-size: 22px; text-align: center; margin-bottom: 5px; }
+        p.sub { text-align: center; color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 10px; color: #fff; box-sizing: border-box; font-size: 15px; }
+        button { width: 100%; padding: 12px; background: #3b82f6; color: #fff; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
         .hidden { display: none; }
-        .card { background: #334155; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #475569; }
-        .timer-box { background: #dc2626; color: white; padding: 10px; text-align: center; border-radius: 8px; font-weight: bold; margin-bottom: 15px; font-size: 18px; }
+        .card { background: #334155; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #475569; }
+        .timer-box { background: #dc2626; color: white; padding: 8px; text-align: center; border-radius: 8px; font-weight: bold; margin-bottom: 15px; font-size: 16px; }
+        
+        .question-nav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
+        .q-btn { width: 38px; height: 38px; border-radius: 8px; background: #0f172a; border: 1px solid #475569; color: #94a3b8; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .q-btn.active { background: #3b82f6; color: #fff; border-color: #60a5fa; }
+        .q-btn.answered { background: #10b981; color: #fff; border-color: #34d399; }
+        
+        .option-box { display: flex; align-items: center; background: #0f172a; border: 2px solid #475569; border-radius: 10px; padding: 12px 15px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .option-box:hover { border-color: #3b82f6; }
+        .option-box.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); }
+        .opt-badge { width: 30px; height: 30px; background: #334155; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-left: 12px; color: #f8fafc; }
+        .option-box.selected .opt-badge { background: #3b82f6; color: #fff; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>منصة مستر أحمد صابر</h1>
-        <p class="sub">📞 01119084421 - النظام الاحترافي للامتحانات الإلكترونية</p>
+        <p class="sub">📞 01119084421 - النظام الاحترافي المتقدم</p>
 
-        <!-- 1. واجهة دخول الطالب -->
+        <!-- 1. واجهة دخول الطالب (الصف، الاسم، الكود) -->
         <div id="studentLoginSection">
             <div class="card">
                 <h3 style="color: #38bdf8; margin-bottom: 15px;">دخول الطالب للامتحان</h3>
+                
+                <label style="font-size: 13px; color: #cbd5e1;">اختر الصف الدراسي:</label>
+                <select id="studentGradeSelect">
+                    <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                    <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
+                    <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                    <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                    <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                    <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+                </select>
+
+                <label style="font-size: 13px; color: #cbd5e1;">اسم الطالب:</label>
+                <input type="text" id="studentNameInput" placeholder="اكتب اسمك الثلاثي">
+
+                <label style="font-size: 13px; color: #cbd5e1;">كود الطالب:</label>
                 <input type="text" id="studentCodeInput" placeholder="أدخل كود الطالب الخاص بك">
-                <button onclick="studentLogin()">دخول الامتحان</button>
+
+                <button onclick="studentLogin()" style="background: #f59e0b; color: #0f172a; margin-top: 10px;">دخول الامتحان</button>
             </div>
             <div style="text-align: center;">
                 <button onclick="showAdminLogin()" style="background: transparent; color: #94a3b8; font-size: 13px; border: none; cursor: pointer;">دخول المدرس (لوحة التحكم)</button>
@@ -40,7 +67,7 @@
             <div class="card">
                 <h3 style="color: #f59e0b; margin-bottom: 15px;">تسجيل دخول المدرس</h3>
                 <input type="password" id="adminPassInput" placeholder="كلمة المرور الخاصة بك">
-                <button onclick="verifyAdminPass()">دخول لوحة التحكم</button>
+                <button onclick="verifyAdminPass()" style="background: #f59e0b; color: #0f172a;">دخول لوحة التحكم</button>
                 <button onclick="backToStudent()" style="background: #475569; color: #fff; margin-top: 10px;">الرجوع للخلف</button>
             </div>
         </div>
@@ -50,24 +77,35 @@
             <h3 style="color: #10b981; margin-bottom: 15px;">لوحة تحكم المدرس 👨‍🏫</h3>
             
             <div class="card">
-                <h4 style="color: #facc15; margin-bottom: 10px;">إعدادات الامتحان والوقت:</h4>
-                <label style="font-size: 13px; color: #cbd5e1;">عنوان الامتحان:</label>
-                <input type="text" id="examTitleSetting" placeholder="مثال: امتحان الفيزياء الشهر الأول">
-                
-                <label style="font-size: 13px; color: #cbd5e1;">مدة الامتحان (بالدقائق):</label>
-                <input type="number" id="examDurationSetting" placeholder="مثال: 30 دقيقة" value="30">
+                <h4 style="color: #facc15; margin-bottom: 10px;">إدارة أكواد الطلاب المسموح لهم:</h4>
+                <select id="newStudentGrade">
+                    <option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option>
+                    <option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option>
+                    <option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option>
+                    <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                    <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                    <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+                </select>
+                <input type="text" id="newStudentName" placeholder="اسم الطالب">
+                <input type="text" id="newStudentCode" placeholder="كود الطالب">
+                <button onclick="addStudentCode()" style="background: #10b981; color: #fff;">إضافة الطالب للقائمة</button>
+                <div id="studentsListDisplay" style="margin-top: 10px; font-size: 13px; color: #cbd5e1;"></div>
+            </div>
 
-                <label style="font-size: 13px; color: #cbd5e1;">إظهار النتيجة للطالب بعد الإرسال:</label>
+            <div class="card">
+                <h4 style="color: #facc15; margin-bottom: 10px;">إعدادات الامتحان والوقت:</h4>
+                <input type="text" id="examTitleSetting" placeholder="عنوان الامتحان">
+                <input type="number" id="examDurationSetting" placeholder="مدة الامتحان بالدقائق" value="30">
                 <select id="showResultSetting">
-                    <option value="yes">نعم، تظهر للطالب فوراً</option>
-                    <option value="no">لا، تظهر للمدرس فقط</option>
+                    <option value="yes">إظهار النتيجة للطالب فوراً</option>
+                    <option value="no">إخفاء النتيجة (تظهر للمدرس فقط)</option>
                 </select>
                 <button onclick="saveExamSettings()" style="background: #10b981; color: #fff;">حفظ إعدادات الامتحان</button>
             </div>
 
             <div class="card">
                 <h4 style="color: #facc15; margin-bottom: 10px;">إضافة سؤال جديد:</h4>
-                <input type="text" id="qText" placeholder="نص السؤال (مثال: عاصمة مصر هي...؟)">
+                <input type="text" id="qText" placeholder="نص السؤال">
                 <select id="qType" onchange="toggleOptions()">
                     <option value="mcq">اختيار من متعدد (MCQ)</option>
                     <option value="truefalse">صح وخطأ</option>
@@ -77,11 +115,11 @@
                     <input type="text" id="opt1" placeholder="الخيار الأول">
                     <input type="text" id="opt2" placeholder="الخيار الثاني">
                     <input type="text" id="opt3" placeholder="الخيار الثالث">
-                    <input type="text" id="opt4" placeholder="الخيار الرابع">
+                    <input type="text" id="opt4" placeholder="الخيار الرابع (اختياري)">
                 </div>
 
-                <input type="text" id="qCorrect" placeholder="الإجابة الصحيحة بالضبط">
-                <button onclick="addQuestion()" style="background: #3b82f6; color: #fff;">إضافة السؤال للمنصة</button>
+                <input type="text" id="qCorrect" placeholder="الإجابة الصحيحة تماماً">
+                <button onclick="addQuestion()" style="background: #3b82f6; color: #fff;">إضافة السؤال</button>
             </div>
 
             <div class="card">
@@ -90,17 +128,28 @@
                 <button onclick="changeAdminPassword()" style="background: #8b5cf6; color: #fff;">تحديث كلمة المرور</button>
             </div>
 
-            <button onclick="logoutAdmin()" style="background: #ef4444; color: #fff;">تسجيل خروج المدرس</button>
+            <button onclick="logoutAdmin()" style="background: #ef4444; color: #fff;">تسجيل خروج</button>
         </div>
 
-        <!-- 4. واجهة الامتحان الفعلي للطالب -->
+        <!-- 4. واجهة الامتحان الاحترافية (سؤال بسؤال) -->
         <div id="examContainer" class="hidden">
             <div id="timerDisplay" class="timer-box">الوقت المتبقي: 30:00</div>
-            <h3 id="studentExamTitle" style="color: #38bdf8; margin-bottom: 15px;"></h3>
-            <div id="questionsArea"></div>
+            <h3 id="studentExamTitle" style="color: #38bdf8; margin-bottom: 5px;"></h3>
+            <p id="studentInfoDisplay" style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;"></p>
             
-            <!-- زر تسليم الامتحان في أي وقت -->
-            <button onclick="confirmSubmit()" style="background: #10b981; color: #fff; margin-top: 20px; font-size: 18px; padding: 15px;">إنهاء وتسليم الامتحان الآن</button>
+            <div id="questionNavBtns" class="question-nav"></div>
+
+            <div class="card" id="currentQuestionCard">
+                <h4 id="questionTitleText" style="color: #f8fafc; margin-bottom: 15px; font-size: 16px;"></h4>
+                <div id="currentOptionsArea"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="prevQuestion()" style="background: #475569; color: #fff; flex: 1;">السابق</button>
+                <button onclick="nextQuestion()" style="background: #3b82f6; color: #fff; flex: 1;">التالي</button>
+            </div>
+            
+            <button onclick="confirmSubmit()" style="background: #10b981; color: #fff; margin-top: 15px; font-size: 16px; padding: 14px;">إنهاء وتسليم الامتحان</button>
         </div>
 
         <!-- 5. شاشة النتيجة -->
@@ -108,7 +157,7 @@
             <div class="card" style="text-align: center;">
                 <h2 style="color: #10b981;">تم تسليم الامتحان بنجاح! 🎉</h2>
                 <p id="resultText" style="font-size: 18px; margin: 20px 0;"></p>
-                <button onclick="location.reload()" style="background: #3b82f6; color: #fff;">الخروج من المنصة</button>
+                <button onclick="location.reload()" style="background: #3b82f6; color: #fff;">خروج</button>
             </div>
         </div>
     </div>
@@ -117,7 +166,11 @@
         let adminPass = localStorage.getItem('adminPass') || '123456';
         let examSettings = JSON.parse(localStorage.getItem('examSettings')) || { title: 'امتحان تجريبي', duration: 30, showResult: 'yes' };
         let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
+        let studentsList = JSON.parse(localStorage.getItem('studentsList')) || [];
+        let studentAnswers = {};
+        let currentQIndex = 0;
         let timerInterval;
+        let currentStudent = { grade: '', name: '', code: '' };
 
         function showAdminLogin() {
             document.getElementById('studentLoginSection').classList.add('hidden');
@@ -137,9 +190,32 @@
                 document.getElementById('examTitleSetting').value = examSettings.title;
                 document.getElementById('examDurationSetting').value = examSettings.duration;
                 document.getElementById('showResultSetting').value = examSettings.showResult;
+                renderStudentsList();
             } else {
                 alert('كلمة المرور غير صحيحة!');
             }
+        }
+
+        function addStudentCode() {
+            let grade = document.getElementById('newStudentGrade').value;
+            let name = document.getElementById('newStudentName').value.trim();
+            let code = document.getElementById('newStudentCode').value.trim();
+            if (!name || !code) { alert('الرجاء إدخال اسم الطالب وكوده'); return; }
+            studentsList.push({ grade, name, code });
+            localStorage.setItem('studentsList', JSON.stringify(studentsList));
+            alert('تم إضافة الطالب بنجاح!');
+            document.getElementById('newStudentName').value = '';
+            document.getElementById('newStudentCode').value = '';
+            renderStudentsList();
+        }
+
+        function renderStudentsList() {
+            let disp = document.getElementById('studentsListDisplay');
+            if (studentsList.length === 0) { disp.innerHTML = 'لا توجد أكواد مضافة بعد (مفتوح لأي كود حالياً لو القائمة فارغة)'; return; }
+            let html = '<b>الطلاب المضافون:</b><ul style="margin:5px 0; padding-right:15px;">';
+            studentsList.forEach(s => { html += `<li>[${s.grade}] ${s.name} - الكود: <b>${s.code}</b></li>`; });
+            html += '</ul>';
+            disp.innerHTML = html;
         }
 
         function changeAdminPassword() {
@@ -165,25 +241,29 @@
         }
 
         function addQuestion() {
-            let text = document.getElementById('qText').value;
+            let text = document.getElementById('qText').value.trim();
             let type = document.getElementById('qType').value;
-            let correct = document.getElementById('qCorrect').value;
+            let correct = document.getElementById('qCorrect').value.trim();
             if (!text || !correct) { alert('الرجاء كتابة السؤال والإجابة الصحيحة'); return; }
             
             let qData = { text, type, correct };
             if (type === 'mcq') {
                 qData.options = [
-                    document.getElementById('opt1').value,
-                    document.getElementById('opt2').value,
-                    document.getElementById('opt3').value,
-                    document.getElementById('opt4').value
-                ];
+                    document.getElementById('opt1').value.trim(),
+                    document.getElementById('opt2').value.trim(),
+                    document.getElementById('opt3').value.trim(),
+                    document.getElementById('opt4').value.trim()
+                ].filter(Boolean);
             }
             questions.push(qData);
             localStorage.setItem('examQuestions', JSON.stringify(questions));
             alert('تم إضافة السؤال بنجاح!');
             document.getElementById('qText').value = '';
             document.getElementById('qCorrect').value = '';
+            document.getElementById('opt1').value = '';
+            document.getElementById('opt2').value = '';
+            document.getElementById('opt3').value = '';
+            document.getElementById('opt4').value = '';
         }
 
         function logoutAdmin() {
@@ -193,31 +273,81 @@
         }
 
         function studentLogin() {
+            let grade = document.getElementById('studentGradeSelect').value;
+            let name = document.getElementById('studentNameInput').value.trim();
             let code = document.getElementById('studentCodeInput').value.trim();
-            if (!code) { alert('الرجاء إدخال كود الطالب'); return; }
-            if (questions.length === 0) { alert('عذراً، لم يقم المدرس بإضافة أسئلة لهذا الامتحان بعد.'); return; }
+            
+            if (!name || !code) { alert('الرجاء إدخال الاسم الكود بشكل صحيح'); return; }
+            
+            if (studentsList.length > 0) {
+                let valid = studentsList.some(s => s.code === code && s.grade === grade);
+                if (!valid) { alert('عذراً، هذا الكود أو الصف غير مسجل في قائمة الطلاب المعتمدة!'); return; }
+            }
+
+            if (questions.length === 0) { alert('عذراً، لم يقم المدرس بإضافة أسئلة بعد.'); return; }
+
+            currentStudent = { grade, name, code };
 
             document.getElementById('studentLoginSection').classList.add('hidden');
             document.getElementById('examContainer').classList.remove('hidden');
             document.getElementById('studentExamTitle').innerText = examSettings.title;
+            document.getElementById('studentInfoDisplay').innerText = `الطالب: ${name} | الصف: ${grade} | الكود: ${code}`;
             
-            let qArea = document.getElementById('questionsArea');
-            qArea.innerHTML = '';
-            questions.forEach((q, index) => {
-                let html = `<div class="card"><p><b>س ${index+1}:</b> ${q.text}</p>`;
-                if (q.type === 'mcq') {
-                    q.options.forEach(opt => {
-                        if(opt) html += `<label style="display:block; margin:8px 0; cursor:pointer;"><input type="radio" name="question_${index}" value="${opt}"> ${opt}</label>`;
-                    });
-                } else {
-                    html += `<label style="display:block; margin:8px 0; cursor:pointer;"><input type="radio" name="question_${index}" value="صح"> صح</label>`;
-                    html += `<label style="display:block; margin:8px 0; cursor:pointer;"><input type="radio" name="question_${index}" value="خطأ"> خطأ</label>`;
-                }
-                html += `</div>`;
-                qArea.innerHTML += html;
-            });
-
+            currentQIndex = 0;
+            studentAnswers = {};
+            renderQuestionNav();
+            loadQuestion(0);
             startTimer(examSettings.duration * 60);
+        }
+
+        function renderQuestionNav() {
+            let nav = document.getElementById('questionNavBtns');
+            nav.innerHTML = '';
+            questions.forEach((q, idx) => {
+                let btn = document.createElement('button');
+                btn.className = 'q-btn' + (idx === currentQIndex ? ' active' : '') + (studentAnswers[idx] ? ' answered' : '');
+                btn.innerText = idx + 1;
+                btn.onclick = () => { currentQIndex = idx; loadQuestion(idx); };
+                nav.appendChild(btn);
+            });
+        }
+
+        function loadQuestion(idx) {
+            currentQIndex = idx;
+            let q = questions[idx];
+            document.getElementById('questionTitleText').innerText = `س ${idx + 1}: ${q.text}`;
+            
+            let optArea = document.getElementById('currentOptionsArea');
+            optArea.innerHTML = '';
+
+            let optionsList = q.type === 'mcq' ? q.options : ['صح', 'خطأ'];
+            let letters = ['A', 'B', 'C', 'D', 'E'];
+
+            optionsList.forEach((opt, oIdx) => {
+                let isSelected = studentAnswers[idx] === opt;
+                let box = document.createElement('div');
+                box.className = 'option-box' + (isSelected ? ' selected' : '');
+                box.innerHTML = `<div class="opt-badge">${letters[oIdx] || (oIdx+1)}</div><div style="flex-grow:1; font-weight:bold;">${opt}</div>`;
+                box.onclick = () => {
+                    studentAnswers[idx] = opt;
+                    renderQuestionNav();
+                    loadQuestion(idx);
+                };
+                optArea.appendChild(box);
+            });
+            renderQuestionNav();
+        }
+
+        function nextQuestion() {
+            if (currentQIndex < questions.length - 1) {
+                loadQuestion(currentQIndex + 1);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQIndex > 0) {
+                loadQuestion(currentQIndex - 1);
+            }
         }
 
         function startTimer(duration) {
@@ -239,7 +369,7 @@
         }
 
         function confirmSubmit() {
-            if (confirm('هل أنت متأكد من رغبتك في تسجيل الانتهاء وتسليم الامتحان الآن؟')) {
+            if (confirm('هل أنت متأكد من رغبتك في تسليم الامتحان الآن؟')) {
                 submitExam();
             }
         }
@@ -248,8 +378,7 @@
             clearInterval(timerInterval);
             let score = 0;
             questions.forEach((q, index) => {
-                let selected = document.querySelector(`input[name="question_${index}"]:checked`);
-                if (selected && selected.value.trim() === q.correct.trim()) {
+                if (studentAnswers[index] && studentAnswers[index].trim() === q.correct.trim()) {
                     score++;
                 }
             });
@@ -259,9 +388,9 @@
             
             let resText = document.getElementById('resultText');
             if (examSettings.showResult === 'yes') {
-                resText.innerHTML = `لقد حصلت على <b>${score}</b> من <b>${questions.length}</b>`;
+                resText.innerHTML = `أهلاً بك يا <b>${currentStudent.name}</b><br>لقد حصلت على <b>${score}</b> من <b>${questions.length}</b>`;
             } else {
-                resText.innerHTML = `تم إرسال إجاباتك بنجاح وسيتم إعلان النتيجة قريباً من قبل المدرس.`;
+                resText.innerHTML = `شكراً لك يا <b>${currentStudent.name}</b>.<br>تم إرسال إجاباتك بنجاح وسيتم إعلان النتيجة قريباً من قبل المدرس.`;
             }
         }
     </script>
