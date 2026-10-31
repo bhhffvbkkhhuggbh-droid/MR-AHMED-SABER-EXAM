@@ -26,9 +26,11 @@
         .option-box.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); }
         .opt-badge { width: 30px; height: 30px; background: #334155; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-left: 12px; color: #f8fafc; }
         .option-box.selected .opt-badge { background: #3b82f6; color: #fff; }
+        
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
         th, td { border: 1px solid #475569; padding: 8px; text-align: center; }
         th { background: #0f172a; color: #f59e0b; }
+        .review-box { background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid #3b82f6; }
     </style>
 </head>
 <body>
@@ -37,7 +39,7 @@
         <h1>منصة مستر أحمد صابر</h1>
         <p class="sub">📞 01119084421 - النظام الاحترافي المتقدم</p>
 
-        <!-- 1. واجهة دخول الطالب (اختيار الصف، الاسم الجاهز، والكود) -->
+        <!-- 1. واجهة دخول الطالب -->
         <div id="studentLoginSection">
             <div class="card">
                 <h3 style="color: #38bdf8; margin-bottom: 15px;">دخول الطالب للامتحان</h3>
@@ -106,32 +108,37 @@
                     <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
                 </select>
                 <input type="text" id="newStudentName" placeholder="اسم الطالب الثلاثي">
-                <input type="text" id="newStudentCode" placeholder="الكود السري للطالب (الذي ألفته له)">
+                <input type="text" id="newStudentCode" placeholder="الكود السري للطالب">
                 <button onclick="addStudentCode()" style="background: #10b981; color: #fff;">حفظ الطالب في القائمة</button>
                 <div id="studentsListDisplay" style="margin-top: 10px; font-size: 13px; color: #cbd5e1;"></div>
             </div>
 
-            <!-- سجل نتائج الطلاب -->
+            <!-- إعدادات الامتحان والوقت والمواعيد -->
             <div class="card">
-                <h4 style="color: #facc15; margin-bottom: 10px;">📊 سجل درجات ونقاط الطلاب:</h4>
-                <div id="resultsTableContainer">لا توجد نتائج مسجلة حتى الآن.</div>
-                <button onclick="clearResults()" style="background: #dc2626; color: #fff; margin-top: 10px; font-size: 13px; padding: 8px;">حذف سجل النتائج</button>
-            </div>
-
-            <div class="card">
-                <h4 style="color: #facc15; margin-bottom: 10px;">إعدادات الامتحان والوقت:</h4>
+                <h4 style="color: #facc15; margin-bottom: 10px;">⏱️ إعدادات الامتحان والمواعيد:</h4>
+                <label style="font-size: 13px; color: #cbd5e1;">عنوان الامتحان:</label>
                 <input type="text" id="examTitleSetting" placeholder="عنوان الامتحان">
-                <input type="number" id="examDurationSetting" placeholder="مدة الامتحان بالدقائق" value="30">
-                <select id="showResultSetting">
-                    <option value="yes">إظهار النتيجة للطالب فوراً</option>
-                    <option value="no">إخفاء النتيجة (تظهر للمدرس فقط)</option>
-                </select>
-                <button onclick="saveExamSettings()" style="background: #10b981; color: #fff;">حفظ إعدادات الامتحان</button>
+                
+                <label style="font-size: 13px; color: #cbd5e1;">فتح الامتحان (يبدأ في تاريخ ووقت):</label>
+                <input type="datetime-local" id="examStartSetting">
+
+                <label style="font-size: 13px; color: #cbd5e1;">غلق الامتحان (ينتهي في تاريخ ووقت):</label>
+                <input type="datetime-local" id="examEndSetting">
+
+                <label style="font-size: 13px; color: #cbd5e1;">مدة الامتحان (بالدقائق داخل صفحة الحل):</label>
+                <input type="number" id="examDurationSetting" placeholder="مثال: 30" value="30">
+
+                <button onclick="saveExamSettings()" style="background: #10b981; color: #fff;">حفظ مواعيد وإعدادات الامتحان</button>
             </div>
 
+            <!-- إضافة سؤال مع تحديد الدرجة -->
             <div class="card">
-                <h4 style="color: #facc15; margin-bottom: 10px;">إضافة سؤال جديد:</h4>
+                <h4 style="color: #facc15; margin-bottom: 10px;">➕ إضافة سؤال جديد وتحديد درجته:</h4>
                 <input type="text" id="qText" placeholder="نص السؤال">
+                
+                <label style="font-size: 13px; color: #cbd5e1;">درجة هذا السؤال:</label>
+                <input type="number" id="qScore" placeholder="مثال: 1 أو 2 أو 5" value="1">
+
                 <select id="qType" onchange="toggleOptions()">
                     <option value="mcq">اختيار من متعدد (MCQ)</option>
                     <option value="truefalse">صح وخطأ</option>
@@ -146,6 +153,13 @@
 
                 <input type="text" id="qCorrect" placeholder="الإجابة الصحيحة تماماً">
                 <button onclick="addQuestion()" style="background: #3b82f6; color: #fff;">إضافة السؤال</button>
+            </div>
+
+            <!-- سجل نتائج الطلاب -->
+            <div class="card">
+                <h4 style="color: #facc15; margin-bottom: 10px;">📊 سجل درجات الطلاب:</h4>
+                <div id="resultsTableContainer">لا توجد نتائج مسجلة حتى الآن.</div>
+                <button onclick="clearResults()" style="background: #dc2626; color: #fff; margin-top: 10px; font-size: 13px; padding: 8px;">حذف سجل النتائج</button>
             </div>
 
             <div class="card">
@@ -178,22 +192,29 @@
             <button onclick="confirmSubmit()" style="background: #10b981; color: #fff; margin-top: 15px; font-size: 16px; padding: 14px;">إنهاء وتسليم الامتحان</button>
         </div>
 
-        <!-- 5. شاشة النتيجة -->
+        <!-- 5. شاشة النتيجة مع مراجعة الإجابات -->
         <div id="resultContainer" class="hidden">
             <div class="card" style="text-align: center;">
                 <h2 style="color: #10b981;">تم تسليم الامتحان بنجاح! 🎉</h2>
                 <p id="resultText" style="font-size: 18px; margin: 20px 0;"></p>
-                <button onclick="location.reload()" style="background: #3b82f6; color: #fff;">خروج</button>
+                <div id="examReviewArea" style="text-align: right; margin-top: 20px;"></div>
+                <button onclick="location.reload()" style="background: #3b82f6; color: #fff; margin-top: 20px;">خروج من المنصة</button>
             </div>
         </div>
     </div>
 
     <script>
         let adminPass = localStorage.getItem('adminPass') || '123456';
-        let examSettings = JSON.parse(localStorage.getItem('examSettings')) || { title: 'امتحان تجريبي', duration: 30, showResult: 'yes' };
+        let examSettings = JSON.parse(localStorage.getItem('examSettings')) || { 
+            title: 'امتحان تجريبي', 
+            duration: 30, 
+            startTime: '', 
+            endTime: '' 
+        };
         let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
         let studentsList = JSON.parse(localStorage.getItem('studentsList')) || [];
         let examResults = JSON.parse(localStorage.getItem('examResults')) || [];
+        let completedStudents = JSON.parse(localStorage.getItem('completedStudents')) || []; // لحفظ من امتحن مسبقاً
         let studentAnswers = {};
         let currentQIndex = 0;
         let timerInterval;
@@ -235,7 +256,8 @@
                 document.getElementById('adminPanel').classList.remove('hidden');
                 document.getElementById('examTitleSetting').value = examSettings.title;
                 document.getElementById('examDurationSetting').value = examSettings.duration;
-                document.getElementById('showResultSetting').value = examSettings.showResult;
+                document.getElementById('examStartSetting').value = examSettings.startTime || '';
+                document.getElementById('examEndSetting').value = examSettings.endTime || '';
                 renderStudentsList();
                 renderResultsTable();
             } else {
@@ -273,17 +295,20 @@
             }
             let html = `<table><tr><th>الصف</th><th>اسم الطالب</th><th>الدرجة</th></tr>`;
             examResults.forEach(r => {
-                html += `<tr><td>${r.grade}</td><td>${r.name}</td><td><b>${r.score} / ${r.total}</b></td></tr>`;
+                html += `<tr><td>${r.grade}</td><td>${r.name}</td><td><b>${r.score} / ${r.maxScore}</b></td></tr>`;
             });
             html += `</table>`;
             container.innerHTML = html;
         }
 
         function clearResults() {
-            if (confirm('هل أنت متأكد من مسح جميع سجلات النتائج؟')) {
+            if (confirm('هل أنت متأكد من مسح جميع سجلات النتائج ومنح الطلاب فرصة جديدة؟')) {
                 examResults = [];
+                completedStudents = [];
                 localStorage.removeItem('examResults');
+                localStorage.removeItem('completedStudents');
                 renderResultsTable();
+                alert('تم مسح النتائج بنجاح.');
             }
         }
 
@@ -299,9 +324,10 @@
         function saveExamSettings() {
             examSettings.title = document.getElementById('examTitleSetting').value;
             examSettings.duration = parseInt(document.getElementById('examDurationSetting').value) || 30;
-            examSettings.showResult = document.getElementById('showResultSetting').value;
+            examSettings.startTime = document.getElementById('examStartSetting').value;
+            examSettings.endTime = document.getElementById('examEndSetting').value;
             localStorage.setItem('examSettings', JSON.stringify(examSettings));
-            alert('تم حفظ إعدادات الامتحان بنجاح!');
+            alert('تم حفظ مواعيد وإعدادات الامتحان بنجاح!');
         }
 
         function toggleOptions() {
@@ -311,11 +337,12 @@
 
         function addQuestion() {
             let text = document.getElementById('qText').value.trim();
+            let score = parseFloat(document.getElementById('qScore').value) || 1;
             let type = document.getElementById('qType').value;
             let correct = document.getElementById('qCorrect').value.trim();
             if (!text || !correct) { alert('الرجاء كتابة السؤال والإجابة الصحيحة'); return; }
             
-            let qData = { text, type, correct };
+            let qData = { text, score, type, correct };
             if (type === 'mcq') {
                 qData.options = [
                     document.getElementById('opt1').value.trim(),
@@ -348,6 +375,24 @@
             
             if (!grade || !name || !code) { alert('الرجاء اختيار الصف، الاسم، وإدخال الكود الخاص بك'); return; }
             
+            // التحقق من مواعيد الامتحان المحددة
+            let now = new Date();
+            if (examSettings.startTime && new Date(examSettings.startTime) > now) {
+                alert('عذراً، لم يبدأ الامتحان بعد. موعد البداية: ' + new Date(examSettings.startTime).toLocaleString('ar-EG'));
+                return;
+            }
+            if (examSettings.endTime && new Date(examSettings.endTime) < now) {
+                alert('عذراً، لقد انتهى موعد هذا الامتحان!');
+                return;
+            }
+
+            // التحقق من أن الطالب لم يقم بأداء الامتحان من قبل
+            let studentKey = grade + "_" + name + "_" + code;
+            if (completedStudents.includes(studentKey)) {
+                alert('عذراً يا ' + name + '، لقد قمت بأداء هذا الامتحان من قبل ولا يمكنك الدخول مرة أخرى!');
+                return;
+            }
+
             let foundStudent = studentsList.find(s => s.grade === grade && s.name === name && s.code === code);
             if (!foundStudent) {
                 alert('عذراً، الكود غير صحيح لهذا الطالب!');
@@ -356,7 +401,7 @@
 
             if (questions.length === 0) { alert('عذراً، لم يقم المدرس بإضافة أسئلة بعد.'); return; }
 
-            currentStudent = { grade, name, code };
+            currentStudent = { grade, name, code, key: studentKey };
 
             document.getElementById('studentLoginSection').classList.add('hidden');
             document.getElementById('examContainer').classList.remove('hidden');
@@ -385,7 +430,7 @@
         function loadQuestion(idx) {
             currentQIndex = idx;
             let q = questions[idx];
-            document.getElementById('questionTitleText').innerText = `س ${idx + 1}: ${q.text}`;
+            document.getElementById('questionTitleText').innerText = `س ${idx + 1} (${q.score} درجة): ${q.text}`;
             
             let optArea = document.getElementById('currentOptionsArea');
             optArea.innerHTML = '';
@@ -446,26 +491,49 @@
 
         function submitExam() {
             clearInterval(timerInterval);
-            let score = 0;
+            let earnedScore = 0;
+            let maxScore = 0;
+
+            questions.forEach(q => { maxScore += (q.score || 1); });
+
             questions.forEach((q, index) => {
+                let qScore = q.score || 1;
                 if (studentAnswers[index] && studentAnswers[index].trim() === q.correct.trim()) {
-                    score++;
+                    earnedScore += qScore;
                 }
             });
 
+            // تسجيل أن الطالب أدى الامتحان لكي لا يدخل مجدداً
+            completedStudents.push(currentStudent.key);
+            localStorage.setItem('completedStudents', JSON.stringify(completedStudents));
+
             // حفظ النتيجة في سجل المدرس
-            examResults.push({ grade: currentStudent.grade, name: currentStudent.name, score: score, total: questions.length });
+            examResults.push({ grade: currentStudent.grade, name: currentStudent.name, score: earnedScore, maxScore: maxScore });
             localStorage.setItem('examResults', JSON.stringify(examResults));
 
             document.getElementById('examContainer').classList.add('hidden');
             document.getElementById('resultContainer').classList.remove('hidden');
             
-            let resText = document.getElementById('resultText');
-            if (examSettings.showResult === 'yes') {
-                resText.innerHTML = `أهلاً بك يا <b>${currentStudent.name}</b><br>لقد حصلت على <b>${score}</b> من <b>${questions.length}</b>`;
-            } else {
-                resText.innerHTML = `شكراً لك يا <b>${currentStudent.name}</b>.<br>تم إرسال إجاباتك بنجاح وسيتم إعلان النتيجة قريباً من قبل المدرس.`;
-            }
+            document.getElementById('resultText').innerHTML = `أهلاً بك يا <b>${currentStudent.name}</b><br>لقد حصلت على مجموع <b>${earnedScore}</b> من <b>${maxScore}</b>`;
+
+            // عرض مراجعة الإجابات وصواب/خطأ للطالب
+            let reviewArea = document.getElementById('examReviewArea');
+            reviewArea.innerHTML = '<h4 style="color: #facc15; margin-bottom: 10px;">📋 مراجعة إجاباتك:</h4>';
+            
+            questions.forEach((q, index) => {
+                let studentAns = studentAnswers[index] || 'لم تجب';
+                let isCorrect = (studentAns.trim() === q.correct.trim());
+                let boxColor = isCorrect ? '#10b981' : '#dc2626';
+                let statusText = isCorrect ? 'إجابة صحيحة ✅' : 'إجابة خاطئة ❌';
+
+                reviewArea.innerHTML += `
+                    <div class="review-box" style="border-right-color: ${boxColor};">
+                        <p style="margin: 0 0 5px 0; font-weight: bold;">س ${index + 1}: ${q.text}</p>
+                        <p style="margin: 0 0 3px 0; font-size: 13px; color: #cbd5e1;">إجابتك: ${studentAns}</p>
+                        <p style="margin: 0; font-size: 13px; color: ${boxColor}; font-weight: bold;">${statusText} (الإجابة الصحيحة: ${q.correct})</p>
+                    </div>
+                `;
+            });
         }
     </script>
 
