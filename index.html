@@ -1,12 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MR AHMED SABER - Exams</title>
-  </head>
-  <body class="bg-slate-900 text-white">
-    <div id="root"></div>
-    <script type="module" src="/App.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة مستر أحمد صابر - للإمتحانات الإلكترونية</title>
+    <style>
+        body { background-color: #0f172a; color: #ffffff; font-family: Tahoma, sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 40px auto; background: #1e293b; padding: 30px; border-radius: 15px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        h1 { color: #f59e0b; font-size: 24px; text-align: center; margin-bottom: 10px; }
+        p.sub { text-align: center; color: #94a3b8; font-size: 14px; margin-bottom: 30px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #f59e0b; color: #0f172a; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #d97706; }
+        .admin-panel { display: none; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>منصة مستر أحمد صابر</h1>
+        <p class="sub">📞 01119084421 - لإدارة الامتحانات والطلاب</p>
+
+        <div id="loginSection">
+            <h3 style="margin-bottom: 15px;">دخول لوحة التحكم</h3>
+            <input type="password" id="passInput" placeholder="أدخل كلمة المرور (123456)">
+            <button onclick="checkLogin()">دخول</button>
+        </div>
+
+        <div id="adminSection" class="admin-panel">
+            <h3 style="color: #10b981;">أهلاً بك يا مستر أحمد!</h3>
+            <p style="color: #cbd5e1;">تم تسجيل الدخول بنجاح إلى لوحة التحكم.</p>
+            <button onclick="logout()" style="background: #ef4444; color: #fff; margin-top: 15px;">تسجيل الخروج</button>
+        </div>
+    </div>
+
+    <script>
+        function checkLogin() {
+            var pass = document.getElementById('passInput').value;
+            if (pass === '123456') {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminSection').style.display = 'block';
+            } else {
+                alert('كلمة المرور غير صحيحة! (الافتراضية: 123456)');
+            }
+        }
+        function logout() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('passInput').value = '';
+        }
+    </script>
+
+</body>
 </html>
